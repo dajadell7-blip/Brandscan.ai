@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BrandScan AI — Know your brand. Grow your brand.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Logo SVG is inline – no image file needed ── */
+    /* ── MinionVariable (Adobe) – falls back to Georgia ── */
+    @font-face {
+      font-family: 'MinionVariable';
+      src: local('Minion Variable Concept'),
+           local('MinionVariable-Roman'),
+           local('MinionPro-Regular');
+      font-weight: 100 900;
+    }
+
+    /* ── Tokens ── */
+    :root {
+      --orange:     #c35528;
+      --olive:      #8b6b29;
+      --gold:       #e8c54a;
+      --near-black: #120e0d;
+      --dark-card:  #1c1007;
+      --cream:      #fdf0dc;
+      --muted:      rgba(253,240,220,.5);
+      --off-white:  #f5f0e8;
+      --green:      #4ade80;
+      --serif:      'MinionVariable','Minion Pro',Georgia,'Times New Roman',serif;
+      --sans:       'Space Grotesk',system-ui,sans-serif;
+    }
+
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--near-black);
+      color: var(--cream);
+      overflow-x: hidden;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━ NAV ━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    nav {
+      position: fixed;
+      inset: 0 0 auto 0;
+      z-index: 200;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      /* frosted glass */
+      background: rgba(255,255,255,.82);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid rgba(0,0,0,.08);
+    }
+
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none;
+      overflow: visible;
+    }
+    .logo-mark { width: 36px; height: auto; flex-shrink: 0; overflow: visible; }
+    .nav-wordmark {
+      font-family: var(--serif);
+      font-size: 19px; font-weight: 700;
+      color: var(--near-black);
+      letter-spacing: -.015em;
+    }
+    .nav-wordmark .ai { font-family: var(--sans); font-weight: 700; color: var(--gold); }
+
+    .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+    .nav-links a {
+      text-decoration: none;
+      font-size: 14px; font-weight: 500;
+      color: var(--near-black);
+      opacity: .65;
+      transition: opacity .15s;
+    }
+    .nav-links a:hover { opacity: 1; }
+
+    .nav-cta {
+      padding: 8px 18px;
+      border: 1.5px solid var(--orange);
+      border-radius: 980px;           /* pill radius */
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      color: var(--orange) !important;
+      opacity: 1 !important;
+      transition: background .18s, color .18s !important;
+    }
+    .nav-cta:hover { background: var(--orange) !important; color: #fff !important; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━ HERO ━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .hero {
+      position: relative;
+      min-height: 100svh;
+      display: flex; align-items: center;
+      padding-top: 64px;
+      background: var(--near-black);
+      overflow: hidden;
+    }
+
+    /* Dot grid */
+    .dot-grid {
+      position: absolute; inset: -60px; pointer-events: none; z-index: 0;
+      background-image: radial-gradient(circle, rgba(139,107,41,.28) 1px, transparent 1px);
+      background-size: 26px 26px;
+      will-change: background-position;
+    }
+    .dot-grid::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 80% at 50% 50%, transparent 35%, var(--near-black) 100%);
+    }
+
+    /* Warm ambient glow – left only */
+    .hero-glow {
+      position: absolute;
+      left: -200px; top: 50%; transform: translateY(-50%);
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(195,85,40,.10) 0%, transparent 65%);
+      pointer-events: none; z-index: 0;
+    }
+
+    .hero-inner {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 1180px;
+      margin: 0 auto;
+      padding: 72px 40px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 56px;
+      align-items: center;
+    }
+
+    /* Left column */
+    .hero-left { display: flex; flex-direction: column; gap: 24px; }
+
+    /* Eyebrow – starts invisible, floats up */
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 5px 14px;
+      background: rgba(232,197,74,.08);
+      border: 1px solid rgba(232,197,74,.22);
+      border-radius: 980px;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: .09em; text-transform: uppercase;
+      color: var(--gold); width: fit-content;
+      will-change: opacity, transform;
+      opacity: 0; transform: translateY(20px);
+      animation: rise .6s cubic-bezier(.22,1,.36,1) .08s forwards;
+    }
+    .eyebrow-dot {
+      width: 5px; height: 5px; border-radius: 50%; background: var(--green);
+      animation: breathe 2.2s ease-in-out infinite;
+    }
+    @keyframes breathe { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+    /* Headline */
+    .hero-h1 {
+      font-family: var(--serif);
+      /* tight tracking at large sizes */
+      font-size: clamp(40px, 5.2vw, 70px);
+      font-weight: 700; line-height: 1.06;
+      letter-spacing: -.025em;
+      will-change: opacity, transform;
+      opacity: 0; transform: translateY(28px);
+      animation: rise .75s cubic-bezier(.22,1,.36,1) .22s forwards;
+    }
+    .hero-h1 .l1 { display: block; color: var(--cream); }
+    .hero-h1 .l2 { display: block; color: var(--orange); }
+
+    /* typewriter cursor */
+    .cur {
+      display: inline-block;
+      width: 2.5px; height: .85em;
+      background: var(--orange);
+      vertical-align: middle; margin-left: 2px;
+      border-radius: 1px;
+      animation: wink .75s step-end infinite;
+    }
+    @keyframes wink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* Subtext */
+    .hero-sub {
+      font-size: 16px; line-height: 1.65;
+      color: var(--muted); max-width: 420px;
+      /* slightly loose body tracking */
+      letter-spacing: .005em;
+      will-change: opacity, transform;
+      opacity: 0; transform: translateY(20px);
+      animation: rise .7s cubic-bezier(.22,1,.36,1) .38s forwards;
+    }
+
+    /* Input bar */
+    .scan-form {
+      display: flex; overflow: hidden;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(139,107,41,.35);
+      border-radius: 12px;
+      max-width: 480px;
+      will-change: opacity, transform;
+      opacity: 0; transform: translateY(20px);
+      animation: rise .7s cubic-bezier(.22,1,.36,1) .52s forwards;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .scan-form:focus-within {
+      border-color: rgba(195,85,40,.6);
+      box-shadow: 0 0 0 3px rgba(195,85,40,.12);
+    }
+    .scan-icon {
+      display: flex; align-items: center;
+      padding: 0 14px; color: var(--olive); flex-shrink: 0;
+    }
+    .scan-form input {
+      flex: 1; background: transparent; border: none; outline: none;
+      font-family: var(--sans); font-size: 15px; color: var(--cream);
+      padding: 15px 4px;
+    }
+    .scan-form input::placeholder { color: rgba(253,240,220,.28); }
+    .scan-btn {
+      background: var(--orange); color: #fff; border: none; cursor: pointer;
+      font-family: var(--sans); font-weight: 600; font-size: 13px;
+      padding: 0 24px; letter-spacing: .02em;
+      /* Spring-like tap response via transform */
+      transition: background .15s, transform .1s;
+      will-change: transform;
+    }
+    .scan-btn:hover { background: #a8471f; }
+    .scan-btn:active { transform: scale(.97); }
+
+    .trust {
+      font-size: 11.5px; color: rgba(253,240,220,.28); letter-spacing: .02em;
+      opacity: 0; animation: rise .6s cubic-bezier(.22,1,.36,1) .65s forwards;
+    }
+
+    @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+
+    /* ── Right: floating dashboard card ── */
+    .hero-right {
+      display: flex; justify-content: center; align-items: center;
+      opacity: 0; transform: translateY(24px) rotate(0deg);
+      animation: rise .9s cubic-bezier(.22,1,.36,1) .42s forwards;
+    }
+
+    .dash-card {
+      width: 100%; max-width: 410px;
+      background: var(--dark-card);
+      border: 1px solid rgba(139,107,41,.2);
+      border-radius: 18px;
+      padding: 22px;
+      transform: rotate(-3deg);
+      /* layered shadows */
+      box-shadow:
+        0 2px 4px rgba(0,0,0,.12),
+        0 8px 24px rgba(0,0,0,.28),
+        0 32px 72px rgba(0,0,0,.50),
+        inset 0 1px 0 rgba(255,255,255,.04);
+      position: relative; overflow: hidden;
+    }
+    /* top edge highlight */
+    .dash-card::before {
+      content: '';
+      position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(232,197,74,.35), transparent);
+    }
+
+    /* card header */
+    .ch { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .ch-brand { font-family: var(--serif); font-size: 13px; font-weight: 600; color: var(--cream); }
+    .live-pill {
+      display: flex; align-items: center; gap: 5px;
+      background: rgba(74,222,128,.08); border: 1px solid rgba(74,222,128,.18);
+      border-radius: 980px; padding: 3px 10px;
+      font-size: 10px; font-weight: 600; color: var(--green); letter-spacing: .05em;
+    }
+    .live-pip { width: 5px; height: 5px; border-radius: 50%; background: var(--green); animation: breathe 2s ease-in-out infinite; }
+
+    /* score row */
+    .sc-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 14px; }
+    .sc {
+      background: var(--near-black);
+      border: 1px solid rgba(255,255,255,.05);
+      border-radius: 10px; padding: 11px; text-align: center;
+    }
+    .sc-lbl { font-size: 9px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: rgba(253,240,220,.38); margin-bottom: 5px; }
+    .sc-val { font-family: var(--serif); font-size: 28px; font-weight: 700; line-height: 1; }
+    .sc-val.g { color: var(--green); }
+    .sc-val.y { color: var(--gold); }
+    .sc-val.o { color: var(--orange); }
+    .sc-sub { font-size: 9px; color: rgba(253,240,220,.25); margin-top: 3px; }
+
+    /* exec summary */
+    .exec {
+      background: rgba(195,85,40,.07);
+      border: 1px solid rgba(195,85,40,.18);
+      border-radius: 10px; padding: 12px 13px; margin-bottom: 14px;
+    }
+    .exec-lbl { font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--orange); margin-bottom: 5px; }
+    .exec-txt { font-size: 11px; line-height: 1.55; color: rgba(253,240,220,.58); }
+
+    /* keywords */
+    .kw-hdr { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(253,240,220,.3); margin-bottom: 7px; }
+    .kw-row { display: flex; align-items: center; justify-content: space-between; padding: 6.5px 0; border-bottom: 1px solid rgba(255,255,255,.045); }
+    .kw-row:last-child { border-bottom: none; }
+    .kw-name { font-size: 12px; color: rgba(253,240,220,.75); }
+    .kw-tag { font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 980px; text-transform: uppercase; letter-spacing: .06em; }
+    .kw-tag.h { background: rgba(195,85,40,.18); color: var(--orange); border: 1px solid rgba(195,85,40,.28); }
+    .kw-tag.m { background: rgba(232,197,74,.12); color: var(--gold);   border: 1px solid rgba(232,197,74,.22); }
+    .kw-tag.l { background: rgba(255,255,255,.05); color: rgba(253,240,220,.35); border: 1px solid rgba(255,255,255,.08); }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━ STATS ━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .stats {
+      background: var(--dark-card);
+      border-top: 1px solid rgba(139,107,41,.12);
+      border-bottom: 1px solid rgba(139,107,41,.12);
+      display: flex; justify-content: center; gap: 0;
+    }
+    .stat {
+      flex: 1; max-width: 280px; text-align: center;
+      padding: 36px 24px;
+      border-right: 1px solid rgba(139,107,41,.1);
+    }
+    .stat:last-child { border-right: none; }
+    .stat-n { font-family: var(--serif); font-size: 38px; font-weight: 700; color: var(--orange); line-height: 1; letter-spacing: -.02em; }
+    .stat-l { font-size: 13px; color: var(--muted); margin-top: 6px; letter-spacing: .01em; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━ FEATURES ━━━━━━━━━━━━━━━━━━━━━━━ */
+    .features { background: var(--off-white); padding: 88px 40px; }
+    .features-inner { max-width: 1100px; margin: 0 auto; }
+
+    .sec-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--orange); margin-bottom: 14px; }
+    .sec-h { font-family: var(--serif); font-size: clamp(28px,3.2vw,42px); font-weight: 700; line-height: 1.12; letter-spacing: -.02em; color: var(--near-black); margin-bottom: 52px; max-width: 480px; }
+
+    .feat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    .feat {
+      background: #fff; border-radius: 16px; padding: 28px 26px;
+      border: 1px solid rgba(0,0,0,.055);
+      /* subtle ambient lift */
+      box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 12px rgba(0,0,0,.06);
+      transition: box-shadow .2s, transform .2s;
+    }
+    .feat:hover { box-shadow: 0 2px 4px rgba(0,0,0,.06), 0 12px 32px rgba(0,0,0,.10); transform: translateY(-2px); }
+    .feat.dark { background: var(--near-black); border-color: rgba(139,107,41,.15); }
+    .feat.dark:hover { box-shadow: 0 12px 40px rgba(0,0,0,.55); }
+
+    .feat-icon { width: 36px; height: 36px; margin-bottom: 16px; color: var(--orange); }
+    .feat.dark .feat-icon { color: var(--orange); }
+    .feat:not(.dark) .feat-icon { color: var(--olive); }
+    .feat-title { font-family: var(--serif); font-size: 17px; font-weight: 700; line-height: 1.2; margin-bottom: 9px; letter-spacing: -.01em; }
+    .feat.dark .feat-title { color: var(--cream); }
+    .feat:not(.dark) .feat-title { color: var(--near-black); }
+    .feat-desc { font-size: 13.5px; line-height: 1.65; }
+    .feat.dark .feat-desc { color: rgba(253,240,220,.48); }
+    .feat:not(.dark) .feat-desc { color: rgba(18,14,13,.5); }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━ HOW IT WORKS ━━━━━━━━━━━━━━━━━━━ */
+    .how { background: #fff; padding: 88px 40px; }
+    .how-inner { max-width: 1100px; margin: 0 auto; }
+    .steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; margin-top: 52px; }
+    .step {
+      padding: 30px 24px; background: var(--off-white);
+      border-radius: 16px; border: 1px solid rgba(0,0,0,.055);
+      text-align: center;
+    }
+    .step-n { font-family: var(--serif); font-size: 44px; font-weight: 700; color: var(--orange); opacity: .25; line-height: 1; margin-bottom: 14px; }
+    .step-t { font-family: var(--serif); font-size: 18px; font-weight: 700; color: var(--near-black); margin-bottom: 9px; letter-spacing: -.01em; }
+    .step-d { font-size: 13.5px; line-height: 1.65; color: rgba(18,14,13,.5); }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━ CTA BANNER ━━━━━━━━━━━━━━━━━━━━━ */
+    .cta-band { background: var(--near-black); padding: 88px 40px; text-align: center; position: relative; overflow: hidden; }
+    .cta-band .dot-grid { opacity: .45; }
+    .cta-in { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; }
+    .cta-h { font-family: var(--serif); font-size: clamp(30px,3.8vw,50px); font-weight: 700; color: var(--cream); line-height: 1.08; letter-spacing: -.02em; margin-bottom: 18px; }
+    .cta-sub { font-size: 16px; color: var(--muted); margin-bottom: 36px; line-height: 1.65; }
+    .cta-form {
+      display: flex; overflow: hidden; max-width: 460px; margin: 0 auto;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(139,107,41,.35);
+      border-radius: 12px;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .cta-form:focus-within { border-color: rgba(195,85,40,.6); box-shadow: 0 0 0 3px rgba(195,85,40,.12); }
+    .cta-form input { flex:1; background:transparent; border:none; outline:none; font-family:var(--sans); font-size:15px; color:var(--cream); padding:15px 18px; }
+    .cta-form input::placeholder { color:rgba(253,240,220,.28); }
+    .cta-form button { background:var(--orange); color:#fff; border:none; cursor:pointer; font-family:var(--sans); font-weight:600; font-size:13px; padding:0 24px; transition:background .15s, transform .1s; }
+    .cta-form button:hover { background:#a8471f; }
+    .cta-form button:active { transform:scale(.97); }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━ FOOTER ━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    footer {
+      background: var(--near-black);
+      border-top: 1px solid rgba(139,107,41,.15);
+      padding: 32px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .foot-logo { display:flex; align-items:center; gap:9px; }
+    .foot-wm { font-family:var(--serif); font-size:15px; font-weight:700; color:var(--cream); }
+    .foot-wm .ai { font-family:var(--sans); font-weight:700; color:var(--gold); }
+    .foot-copy { font-size:12px; color:rgba(253,240,220,.25); }
+    .foot-links { display:flex; gap:20px; list-style:none; }
+    .foot-links a { text-decoration:none; font-size:13px; color:rgba(253,240,220,.35); transition:color .15s; }
+    .foot-links a:hover { color:var(--cream); }
+
+    /* ── reduced-motion respect ── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }
+      .eyebrow, .hero-h1, .hero-sub, .scan-form, .trust, .hero-right { opacity:1; transform:none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-logo">
+    <svg class="logo-mark" viewBox="0 0 248 260" overflow="visible" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <style>
+          .bsl-b {
+            fill: #c35428;
+            font-size: 250px;
+            font-family: MinionConceptRoman-DisplayBold, 'Minion Variable Concept', 'MinionVariable', Georgia, serif;
+            font-variation-settings: 'wght' 700, 'opsz' 36;
+            font-weight: 700;
+          }
+        </style>
+      </defs>
+      <text class="bsl-b" transform="translate(21.7 206.25) scale(1.43 1)"><tspan x="0" y="0">B</tspan></text>
+    </svg>
+    <span class="nav-wordmark">BrandScan<span class="ai">AI</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#how">How it Works</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#scan" class="nav-cta">Start Free Audit</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="scan">
+  <div class="dot-grid"></div>
+  <div class="hero-glow"></div>
+
+  <div class="hero-inner">
+
+    <!-- Left -->
+    <div class="hero-left">
+      <h1 class="hero-h1">
+        <span class="l1">Know your brand.</span>
+        <span class="l2">Grow your brand.</span>
+      </h1>
+
+      <p class="hero-sub">
+        Paste your URL and get a real SEO score, keyword gaps,
+        competitor analysis, and actionable recommendations.
+      </p>
+
+      <form class="scan-form" onsubmit="runScan(event, this)">
+        <span class="scan-icon">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+            <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M11 11L14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <input type="url" name="url" id="url-input" placeholder="" required autocomplete="url" />
+        <button type="submit" class="scan-btn">Start Scan</button>
+      </form>
+
+      <span class="trust">Free · No credit card · Results in ~60 seconds</span>
+    </div>
+
+    <!-- Right: dashboard card -->
+    <div class="hero-right">
+      <div class="dash-card">
+        <div class="ch">
+          <span class="ch-brand">Acme Corp — Brand Audit</span>
+          <span class="live-pill"><span class="live-pip"></span>Live Data</span>
+        </div>
+
+        <div class="sc-row">
+          <div class="sc">
+            <div class="sc-lbl">SEO Score</div>
+            <div class="sc-val g">84</div>
+            <div class="sc-sub">PageSpeed API</div>
+          </div>
+          <div class="sc">
+            <div class="sc-lbl">Tone Grade</div>
+            <div class="sc-val y">B+</div>
+            <div class="sc-sub">Gemini AI</div>
+          </div>
+          <div class="sc">
+            <div class="sc-lbl">Kw Gaps</div>
+            <div class="sc-val o">5</div>
+            <div class="sc-sub">Opportunities</div>
+          </div>
+        </div>
+
+        <div class="exec">
+          <div class="exec-lbl">Executive Summary</div>
+          <div class="exec-txt">Strong brand authority with excellent SEO fundamentals. Expanding keyword coverage in high-intent categories could unlock significant organic growth.</div>
+        </div>
+
+        <div class="kw-hdr">Keyword Gaps</div>
+        <div class="kw-row"><span class="kw-name">buy electronics online</span><span class="kw-tag h">high</span></div>
+        <div class="kw-row"><span class="kw-name">laptop trade in deals</span><span class="kw-tag h">high</span></div>
+        <div class="kw-row"><span class="kw-name">smart home devices</span><span class="kw-tag m">medium</span></div>
+        <div class="kw-row"><span class="kw-name">certified refurbished tech</span><span class="kw-tag m">medium</span></div>
+        <div class="kw-row"><span class="kw-name">unlocked smartphones</span><span class="kw-tag l">low</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="stat"><div class="stat-n">60s</div><div class="stat-l">Average audit time</div></div>
+  <div class="stat"><div class="stat-n">4</div><div class="stat-l">Data sources analyzed</div></div>
+  <div class="stat"><div class="stat-n">100%</div><div class="stat-l">Real data, no estimates</div></div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="about">
+  <div class="features-inner">
+    <div class="sec-eyebrow">What You Get</div>
+    <h2 class="sec-h">Everything your brand needs to compete online.</h2>
+    <div class="feat-grid">
+      <div class="feat dark">
+        <svg class="feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/>
+          <path d="M11 8v6M8 11h6" stroke-width="1.4"/>
+        </svg>
+        <div class="feat-title">Real SEO Score</div>
+        <div class="feat-desc">Powered by Google PageSpeed Insights — the same score Google uses to rank your site.</div>
+      </div>
+      <div class="feat">
+        <svg class="feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a10 10 0 1 0 10 10"/><path d="M18 2v6h6"/><path d="M9 12l2 2 4-4"/>
+        </svg>
+        <div class="feat-title">AI Tone Analysis</div>
+        <div class="feat-desc">Gemini AI reads your actual content and grades your brand voice on clarity, confidence, and consistency.</div>
+      </div>
+      <div class="feat">
+        <svg class="feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+          <path d="M7 13h2M7 17h2M13 13h4M13 17h4" stroke-width="1.3"/>
+        </svg>
+        <div class="feat-title">Keyword Gaps</div>
+        <div class="feat-desc">See exactly which high-value keywords your competitors rank for that you’re missing.</div>
+      </div>
+      <div class="feat">
+        <svg class="feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <div class="feat-title">Competitor Intelligence</div>
+        <div class="feat-desc">We surface who you're actually competing with — not just who you think you are.</div>
+      </div>
+      <div class="feat">
+        <svg class="feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+        <div class="feat-title">Actionable Recommendations</div>
+        <div class="feat-desc">Not just data — specific next steps prioritized by impact so you know what to fix first.</div>
+      </div>
+      <div class="feat">
+        <svg class="feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <div class="feat-title">Scan History</div>
+        <div class="feat-desc">Every audit saved to your dashboard. Track improvements over time as you implement changes.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="how-inner">
+    <div class="sec-eyebrow" style="color:var(--orange)">The Process</div>
+    <h2 class="sec-h">From URL to full audit in 60 seconds.</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-n">01</div>
+        <div class="step-t">Paste Your URL</div>
+        <div class="step-d">Enter your website URL. No account, no credit card, no setup — just your link.</div>
+      </div>
+      <div class="step">
+        <div class="step-n">02</div>
+        <div class="step-t">We Scan Everything</div>
+        <div class="step-d">Our AI scrapes your site, pulls Google PageSpeed data, and analyzes your content in real time.</div>
+      </div>
+      <div class="step">
+        <div class="step-n">03</div>
+        <div class="step-t">Get Your Report</div>
+        <div class="step-d">A full brand intelligence dashboard: SEO score, tone grade, keyword gaps, competitors, and next steps.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<section class="cta-band">
+  <div class="dot-grid"></div>
+  <div class="cta-in">
+    <h2 class="cta-h">Ready to know your brand?</h2>
+    <p class="cta-sub">Audit, track, and grow your digital presence — starting now.</p>
+    <form class="cta-form" onsubmit="runScan(event, this)">
+      <input type="url" name="url" placeholder="https://yourbrand.com" required />
+      <button type="submit">Start Free Scan →</button>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-logo">
+    <svg width="26" height="auto" viewBox="0 0 248 260" overflow="visible" xmlns="http://www.w3.org/2000/svg">
+      <text style="fill:#c35428;font-size:250px;font-family:MinionConceptRoman-DisplayBold,'Minion Variable Concept','MinionVariable',Georgia,serif;font-weight:700;" transform="translate(21.7 206.25) scale(1.43 1)"><tspan x="0" y="0">B</tspan></text>
+    </svg>
+    <span class="foot-wm">BrandScan<span class="ai">AI</span></span>
+  </div>
+  <span class="foot-copy">© 2026 BrandScan AI · Built by Daja Dowdell</span>
+  <ul class="foot-links">
+    <li><a href="#how">How it Works</a></li>
+    <li><a href="#about">About</a></li>
+  </ul>
+</footer>
+
+<!-- PARALLAX dot grids drift on scroll -->
+<script>
+  (function () {
+    const grids = document.querySelectorAll('.dot-grid');
+    let ticking = false;
+
+    function update() {
+      const y = window.scrollY;
+      grids.forEach(g => {
+        // Each grid moves at 18% of scroll speed — subtle drift
+        g.style.backgroundPosition = `0px ${y * 0.18}px`;
+      });
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', () => {
+      if (!ticking) { requestAnimationFrame(update); ticking = true; }
+    }, { passive: true });
+  })();
+</script>
+
+<!-- TYPEWRITER — placeholder in search input only -->
+<script>
+  (function () {
+    const input = document.getElementById('url-input');
+    const text = 'https://yourbrand.com';
+    let i = 0, deleting = false;
+
+    function tick() {
+      if (!deleting) {
+        i++;
+        input.placeholder = text.slice(0, i);
+        if (i === text.length) {
+          // Pause at full text, then delete
+          setTimeout(() => { deleting = true; tick(); }, 1800);
+          return;
+        }
+        setTimeout(tick, 68);
+      } else {
+        i--;
+        input.placeholder = text.slice(0, i);
+        if (i === 0) {
+          // Pause before re-typing
+          deleting = false;
+          setTimeout(tick, 500);
+          return;
+        }
+        setTimeout(tick, 38);
+      }
+    }
+
+    // Start after animations settle
+    setTimeout(tick, 900);
+  })();
+</script>
+
+
+<script>
+  async function runScan(e, form) {
+    e.preventDefault();
+    const urlVal = (form.querySelector('input[name="url"]').value || '').trim();
+    if (!urlVal) return;
+    // Auto-derive brand name from domain (e.g. "whitestonereit.com" → "Whitestonereit")
+    // Extract clean brand name from domain (strip www, remove TLD, capitalize)
+    let host = urlVal.replace(/https?:\/\//, '').split('/')[0].replace(/^www\./, '');
+    const brandName = host.split('.')[0].replace(/-/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+    const btn = form.querySelector('button[type="submit"]');
+    const origText = btn.textContent;
+    btn.textContent = 'Scanning…';
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ brand_name: brandName, url: urlVal, description: '' })
+      });
+      const data = await res.json();
+      if (data.success) {
+        window.location.href = '/loading/' + data.scan_id;
+      } else {
+        alert('Error: ' + (data.error || 'Scan failed'));
+        btn.textContent = origText; btn.disabled = false;
+      }
+    } catch(err) {
+      alert('Error: ' + err.message);
+      btn.textContent = origText; btn.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light" />
+  <title>{{ brand_name }} — BrandScan AI Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --canvas:      #e8e3da;
+      --surface-1:   #ffffff;
+      --surface-2:   #f0ece4;
+      --surface-3:   #e2ddd4;
+      --line:        rgba(0,0,0,.15);
+      --line-strong: rgba(0,0,0,.25);
+      --ink:         #0e0c07;
+      --ink-muted:   rgba(14,12,7,.78);
+      --ink-subtle:  rgba(14,12,7,.58);
+      --ink-faint:   rgba(14,12,7,.44);
+      --orange:      #c35528;
+      --orange-hover:#a8471f;
+      --orange-soft: rgba(195,85,40,.08);
+      --orange-line: rgba(195,85,40,.2);
+      --gold:        #a07820;
+      --gold-soft:   rgba(160,120,32,.08);
+      --gold-line:   rgba(160,120,32,.2);
+      --green:       #1a7f4b;
+      --green-soft:  rgba(26,127,75,.08);
+      --green-line:  rgba(26,127,75,.18);
+      --red:         #c0392b;
+      --red-soft:    rgba(192,57,43,.08);
+      --red-line:    rgba(192,57,43,.18);
+      --serif: Georgia,'Times New Roman',serif;
+      --sans:  'Space Grotesk',system-ui,-apple-system,sans-serif;
+      --r-md: 8px; --r-lg: 12px; --r-xl: 16px; --r-pill: 9999px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+    body { font-family: var(--sans); background: var(--canvas); color: var(--ink); font-size: 14px; line-height: 1.5; }
+    a { color: inherit; text-decoration: none; }
+
+    .skip { position: absolute; left: -9999px; }
+    .skip:focus { position: fixed; left: 16px; top: 16px; width: auto; height: auto; padding: 8px 16px; background: var(--orange); color: #fff; border-radius: var(--r-md); z-index: 9999; font-weight: 600; font-size: 13px; }
+
+    /* NAV */
+    nav {
+      position: fixed; inset: 0 0 auto 0; z-index: 200; height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 9px; }
+    .nav-logo-mark { height: 28px; width: auto; overflow: visible; flex-shrink: 0; }
+    .nav-wordmark { font-family: var(--serif); font-size: 17px; font-weight: 700; color: var(--ink); letter-spacing: -.02em; }
+    .nav-wordmark em { font-family: var(--sans); font-style: normal; font-weight: 700; color: var(--orange); }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-url-pill {
+      display: flex; align-items: center; gap: 6px; padding: 4px 10px;
+      background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-pill);
+      font-size: 12px; color: var(--ink-muted); max-width: 220px;
+      overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    }
+    .nav-url-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px;
+      background: var(--orange); color: #fff; border: none; border-radius: var(--r-md);
+      font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer;
+      touch-action: manipulation; transition: background .15s; white-space: nowrap;
+    }
+    .btn-primary:hover { background: var(--orange-hover); }
+    .btn-primary:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+
+    /* REPORT HEADER */
+    .report-header { margin-top: 56px; background: var(--surface-1); border-bottom: 1px solid var(--line); }
+    .rh-inner { max-width: 1200px; margin: 0 auto; padding: 32px 32px 0; }
+
+    .brand-row { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+    .brand-favicon { width: 36px; height: 36px; border-radius: var(--r-md); background: var(--surface-2); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+    .brand-name { font-family: var(--serif); font-size: 20px; font-weight: 700; letter-spacing: -.01em; color: var(--ink); }
+    .brand-url { font-size: 12px; color: var(--ink-subtle); margin-top: 1px; }
+    .brand-ts { font-size: 11px; color: var(--ink-subtle); margin-left: auto; align-self: flex-end; }
+
+    /* SCORE RAIL */
+    .score-rail { display: flex; gap: 0; border-top: 1px solid var(--line); }
+    .sr-item { flex: 1; padding: 14px 24px; border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .sr-item:last-child { border-right: none; }
+    .sr-label { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-subtle); }
+    .sr-val { font-family: var(--serif); font-size: 28px; font-weight: 700; line-height: 1; letter-spacing: -.02em; }
+    .sr-val.g { color: var(--green); } .sr-val.au { color: var(--gold); } .sr-val.or { color: var(--orange); }
+    .sr-sub { font-size: 11px; color: var(--ink-subtle); }
+
+    /* TABS */
+    .tab-bar { display: flex; overflow-x: auto; scrollbar-width: none; border-top: 1px solid var(--line); }
+    .tab-bar::-webkit-scrollbar { display: none; }
+    .tab-btn { padding: 12px 24px; font-size: 13px; font-weight: 500; color: var(--ink-muted); white-space: nowrap; border: none; background: none; border-bottom: 2px solid transparent; cursor: pointer; touch-action: manipulation; transition: color .12s, border-color .12s; font-family: var(--sans); }
+    .tab-btn:hover { color: var(--ink-muted); }
+    .tab-btn.active { color: var(--ink); border-bottom-color: var(--orange); }
+    .tab-btn:focus-visible { outline: 2px solid var(--orange); outline-offset: -2px; border-radius: 2px; }
+
+    /* CONTENT */
+    .content { max-width: 1200px; margin: 0 auto; padding: 32px 32px 80px; }
+    .panel { display: none; } .panel.active { display: block; }
+
+    .sec-h { font-family: var(--serif); font-size: 18px; font-weight: 700; letter-spacing: -.01em; margin-bottom: 16px; color: var(--ink); }
+    .sec-body { font-size: 13.5px; line-height: 1.65; color: var(--ink-muted); margin-bottom: 28px; max-width: 640px; }
+
+    /* SUMMARY BOX */
+    .summary-box { background: var(--surface-1); border: 1px solid var(--line); border-left: 4px solid var(--orange); border-radius: var(--r-xl); padding: 24px; margin-bottom: 32px; }
+    .summary-box p { font-size: 14px; line-height: 1.75; color: var(--ink-muted); }
+
+    /* METRICS */
+    .metric-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r-xl); overflow: hidden; margin-bottom: 32px; }
+    .metric-trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r-xl); overflow: hidden; margin-bottom: 32px; }
+    .metric { background: var(--surface-1); padding: 24px; display: flex; flex-direction: column; gap: 4px; }
+    .metric-label { font-size: 10px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-subtle); }
+    .metric-val { font-family: var(--serif); font-size: 36px; font-weight: 700; line-height: 1; letter-spacing: -.02em; }
+    .metric-val.g { color: var(--green); } .metric-val.au { color: var(--gold); } .metric-val.or { color: var(--orange); }
+    .metric-sub { font-size: 11px; color: var(--ink-faint); margin-top: 2px; }
+    .mbar { height: 3px; background: var(--line-strong); border-radius: 99px; overflow: hidden; margin-top: 10px; }
+    .mbar-fill { height: 100%; border-radius: 99px; transition: width .7s cubic-bezier(.22,1,.36,1); }
+    .mbar-fill.g { background: var(--green); } .mbar-fill.au { background: var(--gold); } .mbar-fill.or { background: var(--orange); }
+
+    /* AUDIT ROWS */
+    .audit { border: 1px solid var(--line); border-radius: var(--r-xl); overflow: hidden; margin-bottom: 32px; }
+    .audit-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 13px 24px; border-bottom: 1px solid var(--line); font-size: 13.5px; background: var(--surface-1); }
+    .audit-row:last-child { border-bottom: none; }
+    .audit-row:nth-child(even) { background: var(--surface-2); }
+    .audit-name { color: var(--ink); flex: 1; font-weight: 500; }
+    .audit-sub { font-size: 11px; color: var(--ink-subtle); margin-top: 3px; font-weight: 400; }
+
+    /* TAGS */
+    .tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: var(--r-pill); text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
+    .tag.good   { background: var(--green-soft); color: var(--green); border: 1px solid var(--green-line); }
+    .tag.bad    { background: var(--red-soft);   color: var(--red);   border: 1px solid var(--red-line); }
+    .tag.warn   { background: var(--gold-soft);  color: var(--gold);  border: 1px solid var(--gold-line); }
+    .tag.high   { background: var(--orange-soft); color: var(--orange); border: 1px solid var(--orange-line); }
+    .tag.medium { background: var(--gold-soft);  color: var(--gold);  border: 1px solid var(--gold-line); }
+    .tag.low    { background: var(--surface-2);  color: var(--ink-subtle); border: 1px solid var(--line); }
+    .tag.easy   { background: var(--green-soft); color: var(--green); border: 1px solid var(--green-line); }
+
+    /* RECS */
+    .rec-list { display: flex; flex-direction: column; gap: 12px; }
+    .rec { display: flex; gap: 16px; align-items: flex-start; padding: 24px; background: var(--surface-1); border: 1px solid var(--line); border-radius: var(--r-xl); transition: border-color .15s, box-shadow .15s; }
+    .rec:hover { border-color: var(--line-strong); box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+    .rec-num { font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--orange); opacity: .35; line-height: 1; flex-shrink: 0; width: 26px; }
+    .rec-title { font-size: 13.5px; font-weight: 600; color: var(--ink); margin-bottom: 5px; }
+    .rec-desc { font-size: 13px; line-height: 1.65; color: var(--ink-muted); }
+    .rec-meta { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+
+    /* KEYWORD TABLE */
+    .kw-table { width: 100%; border-collapse: collapse; margin-bottom: 32px; background: var(--surface-1); border: 1px solid var(--line); border-radius: var(--r-xl); overflow: hidden; }
+    .kw-table th { text-align: left; font-size: 10px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-faint); padding: 12px 20px; border-bottom: 1px solid var(--line); background: var(--canvas); }
+    .kw-table td { padding: 13px 20px; border-bottom: 1px solid var(--line); font-size: 13.5px; color: var(--ink-muted); vertical-align: middle; }
+    .kw-table tr:last-child td { border-bottom: none; }
+    .kw-table tr:hover td { background: var(--canvas); }
+    .kw-name { color: var(--ink); font-weight: 600; }
+    .kw-intent { font-size: 11px; color: var(--ink-faint); margin-top: 2px; }
+
+    /* COMPETITORS */
+    .comp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 32px; }
+    .comp { background: var(--surface-1); border: 1px solid var(--line); border-radius: var(--r-xl); padding: 24px; transition: border-color .15s, box-shadow .15s; }
+    .comp:hover { border-color: var(--line-strong); box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+    .comp-name { font-family: var(--serif); font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--ink); }
+    .comp-why { font-size: 12.5px; line-height: 1.6; color: var(--ink-muted); }
+
+    /* BUTTONS */
+    .btn-outline { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border: 1.5px solid var(--line-strong); border-radius: var(--r-md); background: var(--surface-1); color: var(--ink-muted); font-family: var(--sans); font-size: 12px; font-weight: 500; cursor: pointer; touch-action: manipulation; transition: border-color .15s, color .15s; }
+    .btn-outline:hover { border-color: var(--orange); color: var(--orange); }
+    .btn-outline:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+    .action-row { display: flex; gap: 12px; margin-bottom: 32px; }
+
+    @media (max-width: 900px) {
+      .score-rail { flex-wrap: wrap; }
+      .sr-item { flex: 1 0 33%; border-bottom: 1px solid var(--line); }
+      .metric-row { grid-template-columns: repeat(2, 1fr); }
+      .metric-trio { grid-template-columns: repeat(2, 1fr); }
+      .comp-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      nav { padding: 0 16px; }
+      .rh-inner { padding: 16px 16px 0; }
+      .content { padding: 16px 16px 60px; }
+      .tab-btn { padding: 10px 16px; font-size: 12px; }
+      .sr-item { flex: 1 0 50%; }
+      .brand-ts { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .mbar-fill, .rec, .comp { transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+<a href="#main" class="skip">Skip to main content</a>
+
+<nav aria-label="Site navigation">
+  <a href="/" class="nav-logo" aria-label="BrandScan AI home">
+    <svg class="nav-logo-mark" viewBox="0 0 354 372" xmlns="http://www.w3.org/2000/svg">
+      <text style="fill:#c35428;font-size:250px;font-family:MinionConceptRoman-DisplayBold,'Minion Variable Concept',Georgia,serif;font-weight:700;" transform="translate(31 295) scale(1.43 1)"><tspan x="0" y="0">B</tspan></text>
+    </svg>
+    <span class="nav-wordmark">BrandScan<em>AI</em></span>
+  </a>
+  <div class="nav-right">
+    <div class="nav-url-pill" aria-label="Scanned URL">
+      <span class="nav-url-dot" aria-hidden="true"></span>
+      {{ url | replace('https://', '') | replace('http://', '') }}
+    </div>
+    <a href="/" class="btn-primary">New Scan</a>
+  </div>
+</nav>
+
+<header class="report-header" role="banner">
+  <div class="rh-inner">
+    <div class="brand-row">
+      <div class="brand-favicon" aria-hidden="true">🌐</div>
+      <div>
+        <div class="brand-name">{{ brand_name }}</div>
+        <div class="brand-url">{{ url }}</div>
+      </div>
+      <div class="brand-ts">{{ timestamp.strftime('%b %-d, %Y · %-I:%M %p') if timestamp else '' }}</div>
+    </div>
+
+    <div class="score-rail" role="region" aria-label="Score summary">
+      <div class="sr-item">
+        <div class="sr-label">SEO Score</div>
+        <div class="sr-val {% if seo_score >= 80 %}g{% elif seo_score >= 60 %}au{% else %}or{% endif %}">{{ seo_score }}</div>
+        <div class="sr-sub">PageSpeed Insights</div>
+      </div>
+      <div class="sr-item">
+        <div class="sr-label">Tone Grade</div>
+        <div class="sr-val au">{{ tone_grade }}</div>
+        <div class="sr-sub">Gemini AI analysis</div>
+      </div>
+      <div class="sr-item">
+        <div class="sr-label">Keyword Gaps</div>
+        <div class="sr-val or">{{ keyword_gap_count }}</div>
+        <div class="sr-sub">Missing opportunities</div>
+      </div>
+      <div class="sr-item">
+        <div class="sr-label">Competitors</div>
+        <div class="sr-val au">{{ competitor_count }}</div>
+        <div class="sr-sub">Identified rivals</div>
+      </div>
+      <div class="sr-item">
+        <div class="sr-label">Actions</div>
+        <div class="sr-val or">{{ recommendation_count }}</div>
+        <div class="sr-sub">Prioritized fixes</div>
+      </div>
+    </div>
+
+    <div class="tab-bar" role="tablist" aria-label="Report sections">
+      <button class="tab-btn active" role="tab" aria-selected="true"  aria-controls="panel-overview" data-tab="overview">Overview</button>
+      <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="panel-seo"      data-tab="seo">SEO Health</button>
+      <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="panel-tone"     data-tab="tone">Tone & Content</button>
+      <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="panel-keywords" data-tab="keywords">Keywords</button>
+      <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="panel-comps"    data-tab="comps">Competitors</button>
+      <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="panel-recs"     data-tab="recs">Recommendations</button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="content">
+
+  <!-- OVERVIEW -->
+  <div class="panel active" id="panel-overview" role="tabpanel">
+    <div class="action-row">
+      <button class="btn-outline" onclick="window.print()" aria-label="Export report as PDF">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export PDF
+      </button>
+    </div>
+
+    {% if executive_summary %}
+    <div class="summary-box" role="region" aria-label="Executive summary">
+      <p>{{ executive_summary }}</p>
+    </div>
+    {% endif %}
+
+    <div class="metric-row" role="region" aria-label="Key metrics">
+      <div class="metric">
+        <div class="metric-label">SEO Score</div>
+        <div class="metric-val {% if seo_score >= 80 %}g{% elif seo_score >= 60 %}au{% else %}or{% endif %}">{{ seo_score }}</div>
+        <div class="metric-sub">Google PageSpeed</div>
+        <div class="mbar"><div class="mbar-fill {% if seo_score >= 80 %}g{% elif seo_score >= 60 %}au{% else %}or{% endif %}" style="width:{{ seo_score }}%"></div></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Performance</div>
+        <div class="metric-val {% if performance_score >= 80 %}g{% elif performance_score >= 60 %}au{% else %}or{% endif %}">{{ performance_score or '—' }}</div>
+        <div class="metric-sub">Core Web Vitals</div>
+        {% if performance_score %}<div class="mbar"><div class="mbar-fill {% if performance_score >= 80 %}g{% elif performance_score >= 60 %}au{% else %}or{% endif %}" style="width:{{ performance_score }}%"></div></div>{% endif %}
+      </div>
+      <div class="metric">
+        <div class="metric-label">Tone Grade</div>
+        <div class="metric-val au">{{ tone_grade }}</div>
+        <div class="metric-sub">Brand voice quality</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Keyword Gaps</div>
+        <div class="metric-val or">{{ keyword_gap_count }}</div>
+        <div class="metric-sub">High-value misses</div>
+      </div>
+    </div>
+
+    <div class="sec-h">Top priorities</div>
+    <div class="rec-list">
+      {% for rec in recommendations[:3] %}
+      <div class="rec">
+        <div class="rec-num" aria-hidden="true">{{ loop.index }}</div>
+        <div>
+          <div class="rec-title">{{ rec.title }}</div>
+          {% if rec.description %}<div class="rec-desc">{{ rec.description }}</div>{% endif %}
+          <div class="rec-meta">
+            <span class="tag {{ rec.impact }}">{{ rec.impact | capitalize }} impact</span>
+            <span class="tag {{ rec.effort }}">{{ rec.effort | capitalize }} effort</span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- SEO HEALTH -->
+  <div class="panel" id="panel-seo" role="tabpanel">
+    <div class="metric-trio">
+      <div class="metric">
+        <div class="metric-label">SEO Score</div>
+        <div class="metric-val {% if seo_score >= 80 %}g{% elif seo_score >= 60 %}au{% else %}or{% endif %}">{{ seo_score }}</div>
+        <div class="metric-sub">PageSpeed Insights</div>
+        <div class="mbar"><div class="mbar-fill {% if seo_score >= 80 %}g{% elif seo_score >= 60 %}au{% else %}or{% endif %}" style="width:{{ seo_score }}%"></div></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Performance</div>
+        <div class="metric-val {% if performance_score >= 80 %}g{% elif performance_score >= 60 %}au{% else %}or{% endif %}">{{ performance_score or '—' }}</div>
+        <div class="metric-sub">Core Web Vitals</div>
+        {% if performance_score %}<div class="mbar"><div class="mbar-fill {% if performance_score >= 80 %}g{% elif performance_score >= 60 %}au{% else %}or{% endif %}" style="width:{{ performance_score }}%"></div></div>{% endif %}
+      </div>
+      <div class="metric">
+        <div class="metric-label">Accessibility</div>
+        <div class="metric-val {% if accessibility_score >= 80 %}g{% elif accessibility_score >= 60 %}au{% else %}or{% endif %}">{{ accessibility_score or '—' }}</div>
+        <div class="metric-sub">WCAG compliance</div>
+        {% if accessibility_score %}<div class="mbar"><div class="mbar-fill {% if accessibility_score >= 80 %}g{% elif accessibility_score >= 60 %}au{% else %}or{% endif %}" style="width:{{ accessibility_score }}%"></div></div>{% endif %}
+      </div>
+    </div>
+    <div class="sec-h">Technical audit</div>
+    <div class="audit" role="list">
+      {% for check in seo_checks %}
+      <div class="audit-row" role="listitem">
+        <div class="audit-name">
+          {{ check.name }}
+          {% if check.value %}<div class="audit-sub">{{ check.value }}</div>{% endif %}
+        </div>
+        <span class="tag {% if check.status == 'pass' %}good{% elif check.status == 'fail' %}bad{% else %}warn{% endif %}">
+          {{ 'Pass' if check.status == 'pass' else ('Fail' if check.status == 'fail' else 'Warning') }}
+        </span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- TONE & CONTENT -->
+  <div class="panel" id="panel-tone" role="tabpanel">
+    {% if tone_summary %}
+    <div class="summary-box">
+      <p>{{ tone_summary }}</p>
+    </div>
+    {% endif %}
+    <div class="metric-trio">
+      <div class="metric">
+        <div class="metric-label">Tone Grade</div>
+        <div class="metric-val au">{{ tone_grade }}</div>
+        <div class="metric-sub">Overall brand voice</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">SEO Score</div>
+        <div class="metric-val {% if seo_score >= 80 %}g{% elif seo_score >= 60 %}au{% else %}or{% endif %}">{{ seo_score }}</div>
+        <div class="metric-sub">Technical foundation</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Accessibility</div>
+        <div class="metric-val {% if accessibility_score >= 80 %}g{% elif accessibility_score >= 60 %}au{% else %}or{% endif %}">{{ accessibility_score or '—' }}</div>
+        <div class="metric-sub">WCAG compliance</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KEYWORDS -->
+  <div class="panel" id="panel-keywords" role="tabpanel">
+    <div class="sec-body">High-value search terms your competitors rank for that your site is missing.</div>
+    {% if keyword_gaps %}
+    <table class="kw-table" aria-label="Keyword gap analysis">
+      <thead>
+        <tr>
+          <th scope="col">Keyword</th>
+          <th scope="col">Competitor using it</th>
+          <th scope="col">Priority</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for kw in keyword_gaps %}
+        <tr>
+          <td>
+            <div class="kw-name">{{ kw.keyword }}</div>
+            {% if kw.intent %}<div class="kw-intent">{{ kw.intent }}</div>{% endif %}
+          </td>
+          <td>{{ kw.competitor or '—' }}</td>
+          <td><span class="tag {{ kw.priority }}">{{ kw.priority | capitalize }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p style="color:var(--ink-subtle);font-size:13px;">No keyword gaps identified.</p>
+    {% endif %}
+  </div>
+
+  <!-- COMPETITORS -->
+  <div class="panel" id="panel-comps" role="tabpanel">
+    <div class="sec-body">Brands competing for the same keywords and audience.</div>
+    {% if competitors %}
+    <div class="comp-grid">
+      {% for comp in competitors %}
+      <div class="comp">
+        <div class="comp-name">{{ comp.name }}</div>
+        <div class="comp-why">{{ comp.reason }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p style="color:var(--ink-subtle);font-size:13px;">No competitors identified.</p>
+    {% endif %}
+  </div>
+
+  <!-- RECOMMENDATIONS -->
+  <div class="panel" id="panel-recs" role="tabpanel">
+    <div class="sec-body">Fix these in order for the fastest brand and organic growth.</div>
+    <div class="rec-list" role="list">
+      {% for rec in recommendations %}
+      <div class="rec" role="listitem">
+        <div class="rec-num" aria-hidden="true">{{ loop.index }}</div>
+        <div>
+          <div class="rec-title">{{ rec.title }}</div>
+          {% if rec.description %}<div class="rec-desc">{{ rec.description }}</div>{% endif %}
+          <div class="rec-meta">
+            <span class="tag {{ rec.impact }}">{{ rec.impact | capitalize }} impact</span>
+            <span class="tag {{ rec.effort }}">{{ rec.effort | capitalize }} effort</span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</main>
+
+<script>
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const panels  = document.querySelectorAll('.panel');
+
+  tabBtns.forEach((btn, i) => {
+    btn.addEventListener('click', activate);
+    btn.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') { const n = tabBtns[(i+1) % tabBtns.length]; n.focus(); n.click(); }
+      if (e.key === 'ArrowLeft')  { const n = tabBtns[(i-1+tabBtns.length) % tabBtns.length]; n.focus(); n.click(); }
+    });
+  });
+
+  function activate() {
+    tabBtns.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+    panels.forEach(p => p.classList.remove('active'));
+    this.classList.add('active');
+    this.setAttribute('aria-selected','true');
+    const target = document.getElementById('panel-' + this.dataset.tab);
+    target.classList.add('active');
+    target.querySelectorAll('.mbar-fill').forEach(bar => {
+      const w = bar.style.width; bar.style.transition='none'; bar.style.width='0%';
+      requestAnimationFrame(() => { bar.style.transition=''; bar.style.width=w; });
+    });
+  }
+</script>
+</body>
+</html>
