@@ -62,3 +62,21 @@ def get_scan_by_id(scan_id):
     finally:
         cur.close()
         conn.close()
+
+def get_all_scans(limit=50):
+    conn = get_connection()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    try:
+        cur.execute(
+            """SELECT bs.id, bs.brand_name, bs.url, bs.scanned_at,
+                      ar.seo_score, ar.tone_grade, ar.executive_summary
+               FROM brand_scans bs
+               JOIN audit_results ar ON bs.id = ar.scan_id
+               ORDER BY bs.scanned_at DESC
+               LIMIT %s""",
+            (limit,)
+        )
+        return [dict(r) for r in cur.fetchall()]
+    finally:
+        cur.close()
+        conn.close()

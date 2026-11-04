@@ -12,7 +12,7 @@ from functools import wraps
 from collections import defaultdict
 from dotenv import load_dotenv
 from prompts import SYSTEM_PROMPT, build_brand_audit_prompt
-from database import save_scan_result, get_scan_by_id
+from database import save_scan_result, get_scan_by_id, get_all_scans
 from scraper import scrape_website, get_pagespeed_score
 
 load_dotenv()
@@ -271,6 +271,15 @@ def get_scan(scan_id):
         return jsonify({'error': 'Scan not found.'}), 404
 
 
+@app.route("/history")
+def history():
+    try:
+        scans = get_all_scans()
+    except Exception:
+        scans = []
+    return render_template("history.html", scans=scans)
+
+
 if __name__ == '__main__':
     debug = os.getenv('FLASK_DEBUG', 'false').lower() == 'true'
-    app.run(debug=debug, port=5000)
+    app.run(debug=debug, host="0.0.0.0", port=5000)

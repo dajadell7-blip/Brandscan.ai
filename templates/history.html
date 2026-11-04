@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Scan History · BrandScan AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0e0d;
+      --surface: #181614;
+      --border: rgba(255,255,255,0.07);
+      --accent: #c8622a;
+      --text: #fdf0dc;
+      --muted: rgba(253,240,220,0.45);
+      --radius: 12px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
+    .nav-logo .ai { color: var(--accent); }
+    .nav-back {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--text); }
+
+    /* PAGE */
+    .page {
+      max-width: 900px;
+      margin: 60px auto;
+      padding: 0 24px;
+    }
+
+    .page-header { margin-bottom: 40px; }
+    .page-header h1 { font-size: 32px; font-weight: 700; letter-spacing: -1px; }
+    .page-header p { color: var(--muted); margin-top: 8px; font-size: 15px; }
+
+    /* EMPTY STATE */
+    .empty {
+      text-align: center;
+      padding: 80px 0;
+      color: var(--muted);
+    }
+    .empty h2 { font-size: 20px; font-weight: 500; margin-bottom: 10px; }
+    .empty a {
+      display: inline-block;
+      margin-top: 24px;
+      background: var(--accent);
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    /* TABLE */
+    .scan-table { width: 100%; border-collapse: collapse; }
+    .scan-table thead th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      padding: 0 16px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .scan-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+      cursor: pointer;
+    }
+    .scan-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+    .scan-table tbody td {
+      padding: 18px 16px;
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    .brand-name { font-weight: 600; }
+    .brand-url { color: var(--muted); font-size: 12px; margin-top: 2px; }
+
+    .score-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .score-high { background: rgba(74,222,128,0.12); color: #4ade80; }
+    .score-mid  { background: rgba(251,191,36,0.12); color: #fbbf24; }
+    .score-low  { background: rgba(248,113,113,0.12); color: #f87171; }
+
+    .grade-pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(200,98,42,0.15);
+      color: var(--accent);
+    }
+
+    .ts { color: var(--muted); font-size: 12px; }
+
+    .view-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .view-link:hover { text-decoration: underline; }
+
+    .summary-cell {
+      max-width: 240px;
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo">BrandScan<span class="ai">AI</span></span>
+  <a href="/" class="nav-back">← New scan</a>
+</nav>
+
+<div class="page">
+  <div class="page-header">
+    <h1>Scan History</h1>
+    <p>{{ scans|length }} brand audit{{ 's' if scans|length != 1 else '' }} on record</p>
+  </div>
+
+  {% if not scans %}
+  <div class="empty">
+    <h2>No scans yet</h2>
+    <p>Run your first brand audit to see results here.</p>
+    <a href="/">Run a scan</a>
+  </div>
+  {% else %}
+  <table class="scan-table">
+    <thead>
+      <tr>
+        <th>Brand</th>
+        <th>SEO</th>
+        <th>Tone</th>
+        <th>Summary</th>
+        <th>Date</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in scans %}
+      <tr onclick="window.location='/results/{{ s.id }}'">
+        <td>
+          <div class="brand-name">{{ s.brand_name }}</div>
+          <div class="brand-url">{{ s.url }}</div>
+        </td>
+        <td>
+          <span class="score-badge {% if s.seo_score >= 70 %}score-high{% elif s.seo_score >= 40 %}score-mid{% else %}score-low{% endif %}">
+            {{ s.seo_score }}
+          </span>
+        </td>
+        <td><span class="grade-pill">{{ s.tone_grade }}</span></td>
+        <td class="summary-cell">{{ s.executive_summary }}</td>
+        <td class="ts">{{ s.scanned_at.strftime('%b %d, %Y') if s.scanned_at else '—' }}</td>
+        <td><a class="view-link" href="/results/{{ s.id }}">View →</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+
+</body>
+</html>
