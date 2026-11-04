@@ -1,10 +1,9 @@
 from flask import Flask, request, jsonify, render_template, abort
 from flask_cors import CORS
-from google import genai
-from google.genai.errors import ServerError
 import json
 import os
 import time
+import requests as http_requests
 import re
 from urllib.parse import urlparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -23,7 +22,6 @@ app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": os.getenv("ALLOWED_ORIGINS", "*")}})
 
 # ── Gemini client ─────────────────────────────────────────────────────────────
-client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
 
 # ── In-memory rate limiter (per IP, resets per minute) ───────────────────────
 _rate_counts  = defaultdict(list)  # ip → [timestamps]
@@ -60,24 +58,32 @@ def validate_url(url: str) -> str:
     return url
 
 
-# ── Gemini with exponential-backoff retry on 503 ─────────────────────────────
+# ── Gemini via REST API (no SDK dependency) ──────────────────────────────────
 def call_gemini(prompt: str, retries: int = 4) -> str:
+    api_key = os.getenv('GEMINI_API_KEY') or os.getenv('GOOGLE_API_KEY')
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+    payload = {"contents": [{"parts": [{"text": SYSTEM_PROMPT + "\n\n" + prompt}]}]}
     delay = 2.0
     for attempt in range(retries):
         try:
-            response = client.models.generate_content(
-                model='gemini-flash-latest',
-                contents=SYSTEM_PROMPT + '\n\n' + prompt
-            )
-            return response.text.strip()
-        except ServerError as e:
-            if "503" in str(e) or "UNAVAILABLE" in str(e).upper():
+            resp = http_requests.post(url, json=payload, timeout=90)
+            if resp.status_code == 503:
                 if attempt < retries - 1:
                     print(f"Gemini 503 — retrying in {delay:.0f}s (attempt {attempt+1}/{retries})")
                     time.sleep(delay)
-                    delay *= 2  # exponential backoff: 2 → 4 → 8 → 16
+                    delay *= 2
                     continue
-            raise  # not a 503, or out of retries
+                raise RuntimeError("Gemini is currently overloaded. Please try again in a minute.")
+            resp.raise_for_status()
+            data = resp.json()
+            return data["candidates"][0]["content"]["parts"][0]["text"].strip()
+        except http_requests.exceptions.Timeout:
+            if attempt < retries - 1:
+                print(f"Gemini timeout — retrying (attempt {attempt+1}/{retries})")
+                time.sleep(delay)
+                delay *= 2
+                continue
+            raise RuntimeError("Gemini timed out. Please try again.")
     raise RuntimeError("Gemini is currently overloaded. Please try again in a minute.")
 
 
