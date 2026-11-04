@@ -66,7 +66,7 @@ def call_gemini(prompt: str, retries: int = 4) -> str:
     for attempt in range(retries):
         try:
             response = client.models.generate_content(
-                model='gemini-2.0-flash',
+                model='gemini-2.5-flash',
                 contents=SYSTEM_PROMPT + '\n\n' + prompt
             )
             return response.text.strip()
