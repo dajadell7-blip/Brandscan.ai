@@ -61,7 +61,7 @@ def validate_url(url: str) -> str:
 # ── Gemini via REST API (no SDK dependency) ──────────────────────────────────
 def call_gemini(prompt: str, retries: int = 4) -> str:
     api_key = os.getenv('GEMINI_API_KEY') or os.getenv('GOOGLE_API_KEY')
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
     payload = {"contents": [{"parts": [{"text": SYSTEM_PROMPT + "\n\n" + prompt}]}]}
     delay = 2.0
     for attempt in range(retries):
