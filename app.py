@@ -3,8 +3,7 @@ from flask_cors import CORS
 import json
 import os
 import time
-from google import genai
-from google.genai.errors import ServerError
+import anthropic
 import re
 from urllib.parse import urlparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -22,9 +21,9 @@ app = Flask(__name__)
 # ── CORS (restrict to same origin in production) ─────────────────────────────
 CORS(app, resources={r"/api/*": {"origins": os.getenv("ALLOWED_ORIGINS", "*")}})
 
-# ── Gemini client ─────────────────────────────────────────────────────────────
+# ── Anthropic client ─────────────────────────────────────────────────────────
 
-client = genai.Client(api_key=os.getenv('GEMINI_API_KEY') or os.getenv('GOOGLE_API_KEY'))
+client = anthropic.Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
 
 # ── In-memory rate limiter (per IP, resets per minute) ───────────────────────
 _rate_counts  = defaultdict(list)  # ip → [timestamps]
@@ -61,25 +60,34 @@ def validate_url(url: str) -> str:
     return url
 
 
-# ── Gemini with exponential-backoff retry on 503 ─────────────────────────────
-def call_gemini(prompt: str, retries: int = 4) -> str:
+# ── Claude (Anthropic) with retry ────────────────────────────────────────────
+def call_gemini(prompt: str, retries: int = 3) -> str:
+    """Call Claude claude-3-5-haiku-20241022. Named call_gemini to avoid changing callers."""
     delay = 2.0
     for attempt in range(retries):
         try:
-            response = client.models.generate_content(
-                model='gemini-2.0-flash',
-                contents=SYSTEM_PROMPT + '\n\n' + prompt
+            message = client.messages.create(
+                model="claude-3-5-haiku-20241022",
+                max_tokens=4096,
+                system=SYSTEM_PROMPT,
+                messages=[{"role": "user", "content": prompt}]
             )
-            return response.text.strip()
-        except ServerError as e:
-            if "503" in str(e) or "UNAVAILABLE" in str(e).upper():
-                if attempt < retries - 1:
-                    print(f"Gemini 503 — retrying in {delay:.0f}s (attempt {attempt+1}/{retries})")
-                    time.sleep(delay)
-                    delay *= 2
-                    continue
+            return message.content[0].text.strip()
+        except anthropic.APIStatusError as e:
+            if e.status_code in (529, 503) and attempt < retries - 1:
+                print(f"Claude overloaded — retrying in {delay:.0f}s (attempt {attempt+1}/{retries})")
+                time.sleep(delay)
+                delay *= 2
+                continue
             raise
-    raise RuntimeError("Gemini is currently overloaded. Please try again in a minute.")
+        except anthropic.APIConnectionError:
+            if attempt < retries - 1:
+                print(f"Claude connection error — retrying in {delay:.0f}s")
+                time.sleep(delay)
+                delay *= 2
+                continue
+            raise RuntimeError("Could not connect to Claude API. Please try again.")
+    raise RuntimeError("Claude is currently overloaded. Please try again in a minute.")
 
 
 # ── Clean AI JSON response ────────────────────────────────────────────────────
