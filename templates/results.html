@@ -193,6 +193,67 @@
     @media (prefers-reduced-motion: reduce) {
       .mbar-fill, .rec, .comp { transition: none; }
     }
+
+    /* ── PRINT / PDF EXPORT ────────────────────────────────────────────────── */
+    @media print {
+      @page { size: A4; margin: 16mm 14mm; }
+
+      /* Reset */
+      *, *::before, *::after { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+      /* Hide chrome */
+      nav, .tab-bar, .action-row, .btn-outline, .btn-primary { display: none !important; }
+
+      /* Remove fixed positioning / backdrop */
+      body { background: #fff !important; font-size: 12px; }
+      .report-header { margin-top: 0 !important; border-bottom: 1px solid #ddd; }
+      .rh-inner { padding: 20px 0 0 !important; max-width: 100%; }
+
+      /* Show ALL panels, stacked */
+      .panel { display: block !important; page-break-inside: avoid; }
+      .panel + .panel { margin-top: 32px; border-top: 1px solid #e0dbd4; padding-top: 32px; }
+
+      /* Section headings get a page-break hint */
+      .sec-h { page-break-after: avoid; }
+      .audit, .kw-table, .comp-grid, .rec-list { page-break-inside: avoid; }
+
+      /* Content fills page */
+      .content { max-width: 100%; padding: 20px 0 0 !important; }
+
+      /* Score rail smaller */
+      .sr-val { font-size: 20px !important; }
+      .sr-item { padding: 10px 16px; }
+
+      /* Tables */
+      .kw-table th, .kw-table td { padding: 8px 12px; }
+
+      /* Metric grid: 4 cols on A4 */
+      .metric-row { grid-template-columns: repeat(4, 1fr) !important; }
+      .metric-trio { grid-template-columns: repeat(3, 1fr) !important; }
+      .metric { padding: 14px; }
+      .metric-val { font-size: 26px !important; }
+
+      /* Competitors: 2 cols */
+      .comp-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+      /* PDF cover watermark */
+      .report-header::before {
+        content: "BrandScan AI — Confidential Report";
+        display: block;
+        font-size: 9px;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: #aaa;
+        margin-bottom: 8px;
+      }
+
+      /* Links: show URL */
+      a[href]::after { content: none; }
+
+      /* Page number footer */
+      @page { @bottom-center { content: counter(page) " / " counter(pages); font-size: 9px; color: #aaa; font-family: 'Space Grotesk', sans-serif; } }
+    }
+
   </style>
 </head>
 <body>
@@ -270,7 +331,7 @@
   <!-- OVERVIEW -->
   <div class="panel active" id="panel-overview" role="tabpanel">
     <div class="action-row">
-      <button class="btn-outline" onclick="window.print()" aria-label="Export report as PDF">
+      <button class="btn-outline" onclick="document.querySelectorAll('.panel').forEach(p=>p.classList.add('active'));window.print();setTimeout(()=>{document.querySelectorAll('.panel').forEach((p,i)=>{if(i>0)p.classList.remove('active')})},1000)" aria-label="Export report as PDF">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Export PDF
       </button>
