@@ -62,12 +62,12 @@ def validate_url(url: str) -> str:
 
 # ── Claude (Anthropic) with retry ────────────────────────────────────────────
 def call_gemini(prompt: str, retries: int = 3) -> str:
-    """Call Claude claude-3-5-haiku-20241022. Named call_gemini to avoid changing callers."""
+    """Call Claude claude-haiku-4-5. Named call_gemini to avoid changing callers."""
     delay = 2.0
     for attempt in range(retries):
         try:
             message = client.messages.create(
-                model="claude-3-5-haiku-20241022",
+                model="claude-haiku-4-5",
                 max_tokens=4096,
                 system=SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": prompt}]
