@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BrandScan AI — Case Study</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    @font-face {
+      font-family: 'MinionVariable';
+      src: local('Minion Variable Concept'), local('MinionVariable-Roman'), local('MinionPro-Regular');
+      font-weight: 100 900;
+    }
+
+    :root {
+      --orange:     #c35528;
+      --orange-lt:  #d4673a;
+      --gold:       #e8c54a;
+      --near-black: #120e0d;
+      --dark-card:  #1c1007;
+      --card2:      #231509;
+      --cream:      #fdf0dc;
+      --muted:      rgba(253,240,220,.55);
+      --faint:      rgba(253,240,220,.3);
+      --off-white:  #f5f0e8;
+      --green:      #4ade80;
+      --line:       rgba(253,240,220,.1);
+      --serif:      'MinionVariable','Minion Pro',Georgia,'Times New Roman',serif;
+      --sans:       'Space Grotesk',system-ui,sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--near-black);
+      color: var(--cream);
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      inset: 0 0 auto 0;
+      z-index: 200;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      background: rgba(18,14,13,.88);
+      backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-logo {
+      font-family: var(--serif);
+      font-size: 22px;
+      color: var(--cream);
+      text-decoration: none;
+      letter-spacing: .01em;
+    }
+    .nav-logo em { color: var(--orange-lt); font-style: normal; }
+    .nav-links { display: flex; align-items: center; gap: 28px; }
+    .nav-links a {
+      font-size: 14px; font-weight: 500; color: var(--muted);
+      text-decoration: none; transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--cream); }
+    .nav-cta {
+      background: var(--orange); color: var(--cream) !important;
+      padding: 8px 20px; border-radius: 8px;
+      font-weight: 600 !important; transition: background .2s !important;
+    }
+    .nav-cta:hover { background: var(--orange-lt) !important; color: var(--cream) !important; }
+
+    /* ── LAYOUT ── */
+    .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 140px 24px 100px;
+      position: relative; overflow: hidden;
+      border-bottom: 1px solid var(--line);
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse 70% 60% at 60% 30%, rgba(195,85,40,.22) 0%, transparent 65%);
+    }
+    .hero-inner { max-width: 900px; margin: 0 auto; position: relative; }
+    .hero-label {
+      font-size: 11px; font-weight: 600; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--orange-lt); margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(44px, 7vw, 80px);
+      line-height: 1.0; letter-spacing: -.02em;
+      color: var(--cream); margin-bottom: 28px;
+    }
+    .hero h1 em { color: var(--orange-lt); font-style: italic; }
+    .hero-sub {
+      font-size: 18px; color: var(--muted); line-height: 1.65;
+      max-width: 580px; margin-bottom: 48px;
+    }
+    .live-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 18px;
+      background: rgba(195,85,40,.18); border: 1px solid rgba(195,85,40,.35);
+      border-radius: 999px; font-size: 13px; font-weight: 600;
+      color: var(--orange-lt); margin-bottom: 32px;
+    }
+    .live-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--orange-lt);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+    .hero-stats {
+      display: flex; flex-wrap: wrap; gap: 0;
+      border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+    }
+    .hstat {
+      flex: 1; min-width: 120px; padding: 20px 28px;
+      border-right: 1px solid var(--line);
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .hstat:last-child { border-right: none; }
+    .hstat-val {
+      font-family: var(--serif); font-size: 30px;
+      color: var(--cream); letter-spacing: -.02em; line-height: 1;
+    }
+    .hstat-label {
+      font-size: 11px; font-weight: 500; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--faint);
+    }
+
+    /* ── SECTIONS ── */
+    section {
+      padding: 88px 24px;
+      border-bottom: 1px solid var(--line);
+    }
+    section:last-of-type { border-bottom: none; }
+
+    .eyebrow {
+      font-size: 11px; font-weight: 600; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--orange-lt);
+      margin-bottom: 16px;
+    }
+    .rule { width: 40px; height: 2px; background: var(--orange); margin-bottom: 36px; }
+
+    h2 {
+      font-family: var(--serif);
+      font-size: clamp(30px, 5vw, 48px);
+      line-height: 1.08; letter-spacing: -.02em;
+      color: var(--cream); margin-bottom: 24px;
+    }
+    p { font-size: 15.5px; line-height: 1.78; color: var(--muted); }
+    p + p { margin-top: 16px; }
+
+    .two-col {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 60px; align-items: start;
+    }
+    @media (max-width: 680px) { .two-col { grid-template-columns: 1fr; gap: 36px; } }
+
+    /* ── PULL QUOTE ── */
+    .pull-quote {
+      border-left: 3px solid var(--orange);
+      padding: 2px 0 2px 24px; margin: 32px 0;
+    }
+    .pull-quote p {
+      font-family: var(--serif); font-size: 20px !important;
+      line-height: 1.5 !important; color: var(--cream) !important;
+      font-style: italic;
+    }
+
+    /* ── PROBLEM ITEMS ── */
+    .problem-list { display: flex; flex-direction: column; gap: 1px; margin-top: 36px; }
+    .problem-item {
+      background: var(--dark-card); padding: 28px 32px;
+      display: flex; gap: 24px; align-items: flex-start;
+      border-left: 3px solid var(--orange);
+    }
+    .problem-item:nth-child(2) { border-left-color: var(--gold); }
+    .problem-item:nth-child(3) { border-left-color: var(--green); }
+    .problem-num {
+      font-family: var(--serif); font-size: 36px; line-height: 1;
+      color: var(--orange); opacity: .35; flex-shrink: 0; padding-top: 2px;
+    }
+    .problem-item:nth-child(2) .problem-num { color: var(--gold); }
+    .problem-item:nth-child(3) .problem-num { color: var(--green); }
+    .problem-title { font-size: 15px; font-weight: 700; color: var(--cream); margin-bottom: 6px; }
+    .problem-body { font-size: 14px; color: var(--muted); line-height: 1.65; }
+
+    /* ── SCORE GRID ── */
+    .score-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1px; background: var(--line);
+      border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+      margin-top: 36px;
+    }
+    @media (max-width: 540px) { .score-grid { grid-template-columns: repeat(2, 1fr); } }
+    .score-cell {
+      background: var(--dark-card); padding: 24px 20px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .score-label {
+      font-size: 10px; font-weight: 500; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--faint);
+    }
+    .score-val {
+      font-family: var(--serif); font-size: 42px;
+      color: var(--orange-lt); letter-spacing: -.02em; line-height: 1;
+    }
+    .score-val.gold  { color: var(--gold); }
+    .score-val.green { color: var(--green); }
+    .score-sub { font-size: 11px; color: var(--faint); }
+
+    /* ── TECH CHIPS ── */
+    .chip-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 16px; border-radius: 8px;
+      font-size: 13px; font-weight: 500;
+      border: 1px solid var(--line); background: var(--dark-card);
+      color: var(--muted);
+    }
+    .chip-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); flex-shrink: 0; }
+
+    /* ── CHALLENGE LIST ── */
+    .challenge-list { display: flex; flex-direction: column; gap: 1px; margin-top: 36px; }
+    .challenge-item {
+      background: var(--dark-card); padding: 24px 28px;
+      display: flex; gap: 20px; align-items: flex-start;
+    }
+    .challenge-num {
+      font-family: var(--serif); font-size: 28px; color: var(--orange-lt);
+      opacity: .4; line-height: 1; flex-shrink: 0; padding-top: 2px;
+    }
+    .challenge-title { font-size: 14px; font-weight: 700; color: var(--cream); margin-bottom: 6px; }
+    .challenge-body  { font-size: 13.5px; color: var(--muted); line-height: 1.65; }
+
+    /* ── RESULT CARDS ── */
+    .result-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 16px; margin-top: 36px;
+    }
+    @media (max-width: 540px) { .result-grid { grid-template-columns: 1fr; } }
+    .result-card {
+      background: var(--dark-card); border: 1px solid var(--line);
+      border-radius: 12px; padding: 28px;
+    }
+    .result-val {
+      font-family: var(--serif); font-size: 40px;
+      color: var(--orange); letter-spacing: -.02em; line-height: 1;
+      margin-bottom: 10px;
+    }
+    .result-label { font-size: 13.5px; color: var(--muted); line-height: 1.55; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--dark-card); border-top: 1px solid var(--line);
+      padding: 56px 24px; text-align: center;
+    }
+    .footer-logo {
+      font-family: var(--serif); font-size: 26px;
+      color: var(--cream); margin-bottom: 12px;
+    }
+    .footer-logo em { color: var(--orange-lt); font-style: normal; }
+    footer p { font-size: 13.5px; color: var(--faint); line-height: 1.7; }
+    footer a { color: var(--orange-lt); text-decoration: none; font-weight: 600; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-logo">BrandScan<em>AI</em></a>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="/history">History</a>
+    <a href="/" class="nav-cta">Try It Free</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-label">Portfolio Case Study &middot; 2026</div>
+    <div class="live-badge"><span class="live-dot"></span> Live Product</div>
+    <h1>BrandScan<em>AI</em></h1>
+    <p class="hero-sub">A real-data SEO audit engine built for small businesses who can&#39;t afford a full marketing team &mdash; but still need to compete online.</p>
+    <div class="hero-stats">
+      <div class="hstat">
+        <span class="hstat-val">6</span>
+        <span class="hstat-label">Audit Dimensions</span>
+      </div>
+      <div class="hstat">
+        <span class="hstat-val">Live</span>
+        <span class="hstat-label">PageSpeed Data</span>
+      </div>
+      <div class="hstat">
+        <span class="hstat-val">AI</span>
+        <span class="hstat-label">Powered Analysis</span>
+      </div>
+      <div class="hstat">
+        <span class="hstat-val">MIS</span>
+        <span class="hstat-label">Academic Foundation</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 01 — THE PROBLEM -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow">01 &mdash; The Problem</div>
+    <div class="rule"></div>
+    <div class="two-col">
+      <div>
+        <h2>Mid-sized brands are flying blind online.</h2>
+        <p>Two years working in digital marketing showed me the same gap everywhere: businesses had no picture of their Google presence, and the tools that could show them cost more than their entire marketing budget.</p>
+      </div>
+      <div class="problem-list">
+        <div class="problem-item">
+          <div class="problem-num">1</div>
+          <div>
+            <div class="problem-title">No visibility into SEO performance</div>
+            <p class="problem-body">Most SMBs don&#39;t know why Google ranks them where it does &mdash; or what it would take to move up a single position.</p>
+          </div>
+        </div>
+        <div class="problem-item">
+          <div class="problem-num">2</div>
+          <div>
+            <div class="problem-title">Enterprise tools cost more than their marketing budget</div>
+            <p class="problem-body">Ahrefs, Semrush, and Moz run hundreds per month &mdash; built for agencies, not solo founders.</p>
+          </div>
+        </div>
+        <div class="problem-item">
+          <div class="problem-num">3</div>
+          <div>
+            <div class="problem-title">The gap I decided to close</div>
+            <p class="problem-body">Same Google data. Same AI analysis. Under 90 seconds. Free.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 — THE SOLUTION -->
+<section style="background: var(--dark-card);">
+  <div class="wrap">
+    <div class="eyebrow">02 &mdash; The Solution</div>
+    <div class="rule"></div>
+    <h2>An in-house mini marketing agency, for companies that can&#39;t afford one.</h2>
+    <p>Paste any URL and get a plain-language breakdown of how that brand appears online in under 90 seconds &mdash; real SEO scoring, tone analysis, keyword gaps, and prioritized fixes. No jargon. No retainer. No waiting.</p>
+    <div class="pull-quote">
+      <p>&#8220;Give a small business owner the same clarity a Fortune 500 CMO gets from their team.&#8221;</p>
+    </div>
+    <div class="score-grid">
+      <div class="score-cell">
+        <span class="score-label">SEO Score</span>
+        <span class="score-val">84</span>
+        <span class="score-sub">PageSpeed Insights</span>
+      </div>
+      <div class="score-cell">
+        <span class="score-label">Tone Grade</span>
+        <span class="score-val gold">B+</span>
+        <span class="score-sub">AI analysis</span>
+      </div>
+      <div class="score-cell">
+        <span class="score-label">Keyword Gaps</span>
+        <span class="score-val green">5</span>
+        <span class="score-sub">Missing opportunities</span>
+      </div>
+      <div class="score-cell">
+        <span class="score-label">Actions</span>
+        <span class="score-val">8</span>
+        <span class="score-sub">Prioritized fixes</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 03 — HOW IT'S BUILT -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow">03 &mdash; How It&#39;s Built</div>
+    <div class="rule"></div>
+    <div class="two-col">
+      <div>
+        <h2>Full-stack, from terminal to live URL.</h2>
+        <p>Built end-to-end as a solo project &mdash; from writing Python in VS Code, pushing commits through Git, to watching the first successful deploy on Render. My MIS coursework in database systems, REST APIs, and cloud platforms connected directly to real production decisions.</p>
+      </div>
+      <div>
+        <div class="chip-grid">
+          <span class="chip"><span class="chip-dot"></span>Python / Flask</span>
+          <span class="chip"><span class="chip-dot"></span>Anthropic API</span>
+          <span class="chip"><span class="chip-dot"></span>PostgreSQL</span>
+          <span class="chip"><span class="chip-dot"></span>Google PageSpeed API</span>
+          <span class="chip"><span class="chip-dot"></span>Render</span>
+          <span class="chip"><span class="chip-dot"></span>Gunicorn</span>
+          <span class="chip"><span class="chip-dot"></span>BeautifulSoup</span>
+          <span class="chip"><span class="chip-dot"></span>Git / GitHub</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 — WHAT I LEARNED -->
+<section style="background: var(--dark-card);">
+  <div class="wrap">
+    <div class="eyebrow">04 &mdash; What I Learned</div>
+    <div class="rule"></div>
+    <h2>Shipping taught me things no class could.</h2>
+    <p>Building for production &mdash; not for a grade &mdash; meant every mistake had a real consequence. The site either worked or it didn&#39;t.</p>
+    <div class="challenge-list">
+      <div class="challenge-item">
+        <div class="challenge-num">1</div>
+        <div>
+          <div class="challenge-title">AI APIs in production are unpredictable</div>
+          <p class="challenge-body">I cycled through multiple model versions as APIs changed mid-build. Each change broke the site. Working through that taught me more about how LLMs are deployed than any tutorial could.</p>
+        </div>
+      </div>
+      <div class="challenge-item">
+        <div class="challenge-num">2</div>
+        <div>
+          <div class="challenge-title">The gap between local and production</div>
+          <p class="challenge-body">The app ran perfectly on my MacBook. On Render, SSL handshakes timed out and environment variables had to be managed carefully. I learned to read server logs and diagnose problems I&#39;d never seen before.</p>
+        </div>
+      </div>
+      <div class="challenge-item">
+        <div class="challenge-num">3</div>
+        <div>
+          <div class="challenge-title">Git as a real workflow tool</div>
+          <p class="challenge-body">Pushing commits through the terminal to trigger live deploys made version control feel like a real professional skill rather than an academic exercise.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 — WHERE IT STANDS -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow">05 &mdash; Where It Stands</div>
+    <div class="rule"></div>
+    <div class="two-col">
+      <div>
+        <h2>Live, real, and still growing.</h2>
+        <p>BrandScan AI is deployed and running at <strong style="color:var(--cream)">brandscan-ai.onrender.com</strong>. Any business can paste their URL and get a full brand audit in under 90 seconds &mdash; powered by real Google data and AI analysis.</p>
+        <p>This isn&#39;t a mock-up. It&#39;s a product I built from a gap I saw in my own professional experience, using skills from two years in digital marketing and my MIS coursework.</p>
+      </div>
+      <div class="result-grid" style="margin-top: 0;">
+        <div class="result-card">
+          <div class="result-val">Live</div>
+          <div class="result-label">Deployed on Render with Postgres database</div>
+        </div>
+        <div class="result-card">
+          <div class="result-val">Real</div>
+          <div class="result-label">Google PageSpeed data, not estimates</div>
+        </div>
+        <div class="result-card">
+          <div class="result-val">Full</div>
+          <div class="result-label">Stack: backend, database, AI, hosting</div>
+        </div>
+        <div class="result-card">
+          <div class="result-val">Solo</div>
+          <div class="result-label">Designed, built, and deployed independently</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">BrandScan<em>AI</em></div>
+  <p>Built by Daja Dowdell &middot; Management Information Systems &middot; University of Houston<br>
+  <a href="https://brandscan-ai.onrender.com" target="_blank">brandscan-ai.onrender.com</a></p>
+</footer>
+
+</body>
+</html>

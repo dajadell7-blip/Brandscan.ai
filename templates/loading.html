@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <title>Scanning… — BrandScan AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --orange: #c35528;
+      --gold:   #e8c54a;
+      --olive:  #8b6b29;
+      --canvas: #120e0d;
+      --cream:  #fdf0dc;
+      --s1: #1a1108;
+      --s2: #1f1509;
+      --border: rgba(139,107,41,.18);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--canvas);
+      color: var(--cream);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: radial-gradient(circle, rgba(139,107,41,.13) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse 60% 55% at 50% 50%, transparent 40%, var(--canvas) 100%);
+      pointer-events: none;
+    }
+
+    /* Logo */
+    .logo-wrap {
+      width: 120px; height: 130px;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .logo-wrap svg { display: block; }
+    .scan-line {
+      position: absolute;
+      left: -4px; right: -4px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold) 30%, var(--gold) 70%, transparent);
+      box-shadow: 0 0 12px 4px rgba(232,197,74,.55);
+      animation: sweep 1.8s ease-in-out infinite;
+      top: 0;
+    }
+    @keyframes sweep {
+      0%   { top: 0; opacity: 0; }
+      8%   { opacity: 1; }
+      92%  { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .scan-line { animation: none; top: 50%; }
+    }
+
+    /* URL chip */
+    .url-chip {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--s1);
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      padding: 6px 14px;
+      font-size: 13px;
+      color: rgba(253,240,220,.6);
+      position: relative; z-index: 1;
+    }
+    .url-chip .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--gold);
+      flex-shrink: 0;
+    }
+
+    /* Card */
+    .card {
+      background: var(--s1);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 32px;
+      width: min(420px, 90vw);
+      position: relative; z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* Progress bar */
+    .progress-track {
+      height: 3px;
+      background: rgba(139,107,41,.22);
+      border-radius: 9999px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 9999px;
+      background: linear-gradient(90deg, var(--orange), var(--gold));
+      transition: width .6s ease;
+    }
+
+    /* Steps */
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step {
+      display: flex; align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .step:last-child { border-bottom: none; }
+    .step-text { display: flex; flex-direction: column; gap: 2px; }
+    .step-label { font-size: 14px; font-weight: 500; color: var(--cream); }
+    .step-sub   { font-size: 12px; color: rgba(253,240,220,.45); }
+    .step-status {
+      font-size: 11px; font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .status-done    { background: rgba(139,107,41,.25); color: var(--gold); }
+    .status-running { background: rgba(195,85,40,.2);   color: var(--orange); }
+    .status-waiting { background: transparent; color: rgba(253,240,220,.3); border: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+  <div class="logo-wrap">
+    <svg width="120" height="130" viewBox="0 0 354 372" overflow="hidden" xmlns="http://www.w3.org/2000/svg">
+      <text style="fill:#c35428;font-size:250px;font-family:MinionConceptRoman-DisplayBold,'Minion Variable Concept',Georgia,serif;font-weight:700;"
+            transform="translate(31 295) scale(1.43 1)"><tspan x="0" y="0">B</tspan></text>
+    </svg>
+    <div class="scan-line"></div>
+  </div>
+
+  <div class="url-chip">
+    <span class="dot"></span>
+    <span id="url-display">Scanning…</span>
+  </div>
+
+  <div class="card">
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+    <div class="steps" id="steps-list">
+      <div class="step">
+        <div class="step-text">
+          <span class="step-label">Fetching website</span>
+          <span class="step-sub">Scraping content, headings, and meta tags</span>
+        </div>
+        <span class="step-status status-waiting" id="s0">—</span>
+      </div>
+      <div class="step">
+        <div class="step-text">
+          <span class="step-label">PageSpeed audit</span>
+          <span class="step-sub">Running Google PageSpeed Insights</span>
+        </div>
+        <span class="step-status status-waiting" id="s1">—</span>
+      </div>
+      <div class="step">
+        <div class="step-text">
+          <span class="step-label">AI analysis</span>
+          <span class="step-sub">Tone, keywords, and competitor gaps</span>
+        </div>
+        <span class="step-status status-waiting" id="s2">—</span>
+      </div>
+      <div class="step">
+        <div class="step-text">
+          <span class="step-label">Saving report</span>
+          <span class="step-sub">Storing results to your dashboard</span>
+        </div>
+        <span class="step-status status-waiting" id="s3">—</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const scanId = "{{ scan_id }}";
+    const steps = [
+      { id: 's0', pct: 20 },
+      { id: 's1', pct: 50 },
+      { id: 's2', pct: 80 },
+      { id: 's3', pct: 100 },
+    ];
+    let current = 0;
+    const fill = document.getElementById('progress-fill');
+
+    function advance() {
+      if (current > 0) {
+        const prev = document.getElementById(steps[current-1].id);
+        prev.textContent = 'Done';
+        prev.className = 'step-status status-done';
+      }
+      if (current < steps.length) {
+        const el = document.getElementById(steps[current].id);
+        el.textContent = 'Running';
+        el.className = 'step-status status-running';
+        fill.style.width = steps[current].pct + '%';
+        current++;
+      }
+    }
+
+    advance();
+    const intervals = [3500, 7000, 14000];
+    intervals.forEach((t, i) => setTimeout(advance, t));
+
+    // Poll for completion
+    function poll() {
+      fetch('/api/scan/' + scanId)
+        .then(r => r.json())
+        .then(data => {
+          if (data.brand_name) {
+            document.getElementById('url-display').textContent = data.url || 'Scanning…';
+            // Mark all done then redirect
+            steps.forEach(s => {
+              const el = document.getElementById(s.id);
+              el.textContent = 'Done';
+              el.className = 'step-status status-done';
+            });
+            fill.style.width = '100%';
+            setTimeout(() => { window.location.href = '/results/' + scanId; }, 800);
+          } else {
+            setTimeout(poll, 3000);
+          }
+        })
+        .catch(() => setTimeout(poll, 3000));
+    }
+
+    // Start polling after a short delay
+    setTimeout(poll, 4000);
+  </script>
+</body>
+</html>
