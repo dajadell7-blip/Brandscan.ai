@@ -280,6 +280,11 @@ def get_scan(scan_id):
         return jsonify({'error': 'Scan not found.'}), 404
 
 
+@app.route("/case-study")
+def case_study():
+    return render_template("case_study.html")
+
+
 @app.route("/history")
 def history():
     try:
