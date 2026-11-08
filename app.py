@@ -61,8 +61,8 @@ def validate_url(url: str) -> str:
 
 
 # ── Claude (Anthropic) with retry ────────────────────────────────────────────
-def call_gemini(prompt: str, retries: int = 3) -> str:
-    """Call Claude claude-haiku-4-5. Named call_gemini to avoid changing callers."""
+def call_claude(prompt: str, retries: int = 3) -> str:
+    """Call Claude claude-haiku-4-5 with exponential-backoff retry."""
     delay = 2.0
     for attempt in range(retries):
         try:
@@ -239,7 +239,7 @@ def scan_brand():
         prompt     = build_brand_audit_prompt(brand_name, url, description,
                                               website_data=website_data,
                                               pagespeed_data=pagespeed_data)
-        raw_response = call_gemini(prompt)
+        raw_response = call_claude(prompt)
         ai_result    = parse_ai_json(raw_response)
 
         # Attach scraped + pagespeed for results route
@@ -278,11 +278,6 @@ def get_scan(scan_id):
         return jsonify(get_scan_by_id(scan_id))
     except Exception:
         return jsonify({'error': 'Scan not found.'}), 404
-
-
-@app.route("/case-study")
-def case_study():
-    return render_template("case_study.html")
 
 
 @app.route("/history")

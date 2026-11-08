@@ -1,18 +1,20 @@
 # BrandScan AI
 
-**AI-powered brand audit tool** — paste a URL, get a real SEO score, keyword gaps, competitor analysis, and Gemini AI recommendations in under 60 seconds.
+**Free AI-powered SEO brand analysis — Fortune 500 clarity for any business.**
 
-Built by [Daja Dowdell](https://github.com/dajadell7-blip)
+Built and deployed solo by [Daja Dowdell](https://github.com/dajadell7-blip) while finishing a CS degree.
+
+🔗 **Live:** [brandscan.ai](https://brandscan.ai)
 
 ---
 
-## The Problem
+## The Story
 
-Small brands and freelancers don't have $500/month for Ahrefs or SEMrush. They need to know if their site is findable — fast — without a marketing degree. Existing free tools give you one score and a wall of jargon. Nothing synthesises SEO, performance, content tone, and competitor gaps into one actionable report.
+I kept seeing the same gap: small businesses and independent brands have no real way to know if their site is showing up online. Tools like Ahrefs and SEMrush cost $500/month and require a marketing background to interpret. Free alternatives give you one number and a wall of jargon.
 
-## The Solution
+I wanted to build something that gave any business owner — not just SEO professionals — a clear, actionable picture of their brand's digital presence. No account. No credit card. Just paste your URL.
 
-BrandScan AI runs four data sources in parallel, hands the combined output to Gemini, and returns a structured audit with prioritised recommendations — all in a single page visit.
+BrandScan AI is the result: a tool that runs real SEO checks, pulls live PageSpeed data from Google, and uses Claude AI to synthesize everything into plain-English recommendations with actual next steps.
 
 ---
 
@@ -21,15 +23,16 @@ BrandScan AI runs four data sources in parallel, hands the combined output to Ge
 ```
 User URL
    │
-   ├─► Scraper (BeautifulSoup)       ─┐
-   │     title, meta, word count,     │  concurrent.futures
-   │     alt text, headings           │  ThreadPoolExecutor
-   │                                  │
-   ├─► Google PageSpeed Insights API ─┘
+   ├─► Scraper (BeautifulSoup)        ─┐
+   │     title, meta description,      │  concurrent.futures
+   │     word count, alt text,         │  ThreadPoolExecutor
+   │     heading structure             │
+   │                                   │
+   ├─► Google PageSpeed Insights API  ─┘
    │     performance, SEO,
    │     accessibility, best practices
    │
-   └─► Both results → Gemini 2.0 Flash
+   └─► Both results → Claude AI (Haiku)
          keyword gaps, competitor suggestions,
          tone analysis, quick wins
               │
@@ -40,21 +43,21 @@ User URL
          Results page  (Flask + Jinja2)
 ```
 
-**Retry logic** — Gemini 503s retry with exponential backoff (2 → 4 → 8 → 16 s).  
-**Parallel calls** — Scrape + PageSpeed run simultaneously, cutting wait time ~40%.
+**Parallel execution** — scraping and PageSpeed run simultaneously via `ThreadPoolExecutor`, cutting wait time ~40%.  
+**Retry logic** — Claude API errors (503, connection drops) retry with exponential backoff: 2 → 4 → 8 → 16s.
 
 ---
 
 ## Features
 
-| | |
+| Feature | Details |
 |---|---|
-| **SEO audit** | Title, meta description, alt text, word count, heading structure |
-| **PageSpeed scores** | Performance, accessibility, best practices via Google API |
-| **Keyword gap analysis** | Keywords competitors rank for that you're missing |
+| **SEO audit** | Title tag, meta description, alt text, word count, heading structure |
+| **PageSpeed scores** | Performance, accessibility, best practices — live from Google's API |
+| **Keyword gap analysis** | Keywords competitors rank for that you're missing, ranked by priority |
 | **Competitor detection** | AI-identified direct competitors with reasoning |
 | **Tone grading** | A–F brand voice assessment with plain-English description |
-| **Prioritised recommendations** | Quick wins ranked by impact × effort |
+| **Prioritised recommendations** | Quick wins ranked by impact so you know what to fix first |
 | **Scan history** | Every audit saved to PostgreSQL, retrievable by ID |
 
 ---
@@ -64,11 +67,11 @@ User URL
 | Layer | Technology |
 |---|---|
 | Backend | Python 3.11 · Flask · Gunicorn |
-| AI | Google Gemini 2.0 Flash (`google-genai`) |
+| AI | Claude Haiku (`anthropic` SDK) |
 | Data | BeautifulSoup4 · Google PageSpeed Insights API |
 | Database | PostgreSQL · psycopg2 |
 | Frontend | Jinja2 · Vanilla JS · CSS custom properties |
-| Design system | Linear-inspired light theme · WCAG AA contrast |
+| Hosting | Render |
 | Security | Per-IP rate limiting · URL validation · sanitised error messages |
 
 ---
@@ -76,50 +79,52 @@ User URL
 ## Local Setup
 
 ```bash
-git clone https://github.com/dajadell7-blip/Brandscan.ai.git
-cd Brandscan.ai
+git clone https://github.com/dajadell7-blip/brandscan.ai.git
+cd brandscan.ai
 python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 
+# Create a .env file (never commit this)
 cp .env.example .env
-# Fill in GEMINI_API_KEY, PAGESPEED_API_KEY, DATABASE_URL
+# Fill in your keys:
+#   ANTHROPIC_API_KEY=
+#   PAGESPEED_API_KEY=
+#   DATABASE_URL=postgresql://user:pass@localhost/brandscan
 
 flask run
 # → http://localhost:5000
 ```
 
-**.env keys required:**
-```
-GEMINI_API_KEY=
-PAGESPEED_API_KEY=
-DATABASE_URL=postgresql://user:pass@localhost/brandscan
-```
+> ⚠️ **Never commit your `.env` file.** API keys stay local or in Render's environment variables only.
 
 ---
 
 ## Design Decisions
 
-**Why Gemini instead of GPT-4?** Gemini 2.0 Flash returns structured JSON reliably and is fast enough for a synchronous web request.
+**Why Claude instead of Gemini?**  
+Claude returns well-structured JSON reliably across a wide range of inputs. After testing both, Claude produced more consistent, accurate competitor and keyword analysis — especially for niche brands with limited online presence.
 
-**Why parallel API calls?** Scraping and PageSpeed are independent — running them sequentially added ~3 s of unnecessary wait. `ThreadPoolExecutor` cuts that to whichever is slower.
+**Why parallel API calls?**  
+Scraping and PageSpeed are completely independent. Running them sequentially added 3–4 seconds of unnecessary wait. `ThreadPoolExecutor` cuts that to whichever finishes slower.
 
-**Why PostgreSQL over SQLite?** Scan history needs to survive restarts and eventually support a `/history` dashboard with full-text search.
+**Why PostgreSQL over SQLite?**  
+Scan history needs to survive server restarts and support a full `/history` dashboard with sorting and filtering. PostgreSQL also pairs well with Render's managed database.
 
-**Why a custom light theme?** Most audit tools use dark dashboards. The warm canvas (`#e8e3da`) + white card system makes reports polished enough to screenshot for a client.
+**Why no account required?**  
+The whole point is zero friction. The target user is a business owner, not a developer. Making them sign up before seeing value would kill the product.
 
 ---
 
 ## What's Next
 
-- [ ] `/history` route — paginated scan history
-- [ ] Cloudflare Tunnel — public URL without hosting costs
-- [ ] PDF export — proper print stylesheet
-- [ ] Scheduled re-scans — weekly delta reports
-- [ ] Multi-page crawl — audit beyond the homepage
+- [ ] PDF export — proper branded report download
+- [ ] Scheduled re-scans — weekly delta reports showing what improved
+- [ ] Multi-page crawl — audit beyond just the homepage
+- [ ] Email delivery — get your report in your inbox
 
 ---
 
 ## Author
 
-**Daja Dowdell** — designer & developer  
-[github.com/dajadell7-blip](https://github.com/dajadell7-blip) · [dajadell7@gmail.com](mailto:dajadell7@gmail.com)
+**Daja Dowdell** — developer & designer  
+CS graduate (May 2027) · [github.com/dajadell7-blip](https://github.com/dajadell7-blip) · [dajadell7@gmail.com](mailto:dajadell7@gmail.com)
