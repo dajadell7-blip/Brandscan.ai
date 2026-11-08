@@ -2,8 +2,6 @@
 
 **AI-powered brand audit tool** — paste a URL, get a real SEO score, keyword gaps, competitor analysis, and Gemini AI recommendations in under 60 seconds.
 
-Built by [Daja Dowdell](https://github.com/dajadell7-blip)
-
 ---
 
 ## The Problem
@@ -119,7 +117,4 @@ DATABASE_URL=postgresql://user:pass@localhost/brandscan
 
 ---
 
-## Author
-
-**Daja Dowdell** — designer & developer  
 [github.com/dajadell7-blip](https://github.com/dajadell7-blip) · [dajadell7@gmail.com](mailto:dajadell7@gmail.com)
