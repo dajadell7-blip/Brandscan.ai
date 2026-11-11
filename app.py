@@ -62,12 +62,12 @@ def validate_url(url: str) -> str:
 
 # ── Claude (Anthropic) with retry ────────────────────────────────────────────
 def call_claude(prompt: str, retries: int = 3) -> str:
-    """Call Claude claude-haiku-4-5 with exponential-backoff retry."""
+    """Call Claude claude-haiku-5-5 with exponential-backoff retry."""
     delay = 2.0
     for attempt in range(retries):
         try:
             message = client.messages.create(
-                model="claude-haiku-4-5",
+                model="claude-haiku-5-5",
                 max_tokens=4096,
                 system=SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": prompt}]
